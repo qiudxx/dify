@@ -1072,4 +1072,10 @@ networks:
 
 volumes:
   oradata:
+    driver: local
+    driver_opts:
+      device: ./data/oradata
   dify_es01_data:
+    driver: local
+    driver_opts:
+      device: ./data/dify_es01_data
