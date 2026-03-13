@@ -1,20 +1,22 @@
 import type { FC } from 'react'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import RemoveEffectVarConfirm from '../_base/components/remove-effect-var-confirm'
-import useConfig from './use-config'
 import type { CodeNodeType } from './types'
-import { CodeLanguage } from './types'
-import { extractFunctionParams, extractReturnType } from './code-parser'
-import VarList from '@/app/components/workflow/nodes/_base/components/variable/var-list'
-import OutputVarList from '@/app/components/workflow/nodes/_base/components/variable/output-var-list'
-import AddButton from '@/app/components/base/button/add-button'
-import Field from '@/app/components/workflow/nodes/_base/components/field'
-import Split from '@/app/components/workflow/nodes/_base/components/split'
-import CodeEditor from '@/app/components/workflow/nodes/_base/components/editor/code-editor'
-import TypeSelector from '@/app/components/workflow/nodes/_base/components/selector'
 import type { NodePanelProps } from '@/app/components/workflow/types'
-const i18nPrefix = 'workflow.nodes.code'
+import * as React from 'react'
+import { useTranslation } from 'react-i18next'
+import AddButton from '@/app/components/base/button/add-button'
+import SyncButton from '@/app/components/base/button/sync-button'
+import CodeEditor from '@/app/components/workflow/nodes/_base/components/editor/code-editor'
+import Field from '@/app/components/workflow/nodes/_base/components/field'
+import TypeSelector from '@/app/components/workflow/nodes/_base/components/selector'
+import Split from '@/app/components/workflow/nodes/_base/components/split'
+import OutputVarList from '@/app/components/workflow/nodes/_base/components/variable/output-var-list'
+import VarList from '@/app/components/workflow/nodes/_base/components/variable/var-list'
+import RemoveEffectVarConfirm from '../_base/components/remove-effect-var-confirm'
+import { extractFunctionParams, extractReturnType } from './code-parser'
+import { CodeLanguage } from './types'
+import useConfig from './use-config'
+
+const i18nPrefix = 'nodes.code'
 
 const codeLanguages = [
   {
@@ -40,6 +42,7 @@ const Panel: FC<NodePanelProps<CodeNodeType>> = ({
     handleVarListChange,
     handleAddVariable,
     handleRemoveVariable,
+    handleSyncFunctionSignature,
     handleCodeChange,
     handleCodeLanguageChange,
     handleVarsChange,
@@ -63,12 +66,19 @@ const Panel: FC<NodePanelProps<CodeNodeType>> = ({
   }
 
   return (
-    <div className='mt-2'>
-      <div className='space-y-4 px-4 pb-4'>
+    <div className="mt-2">
+      <div className="space-y-4 px-4 pb-4">
         <Field
-          title={t(`${i18nPrefix}.inputVars`)}
+          title={t(`${i18nPrefix}.inputVars`, { ns: 'workflow' })}
           operations={
-            !readOnly ? <AddButton onClick={handleAddVariable} /> : undefined
+            !readOnly
+              ? (
+                  <div className="flex gap-2">
+                    <SyncButton popupContent={t(`${i18nPrefix}.syncFunctionSignature`, { ns: 'workflow' })} onClick={handleSyncFunctionSignature} />
+                    <AddButton onClick={handleAddVariable} />
+                  </div>
+                )
+              : undefined
           }
         >
           <VarList
@@ -82,15 +92,16 @@ const Panel: FC<NodePanelProps<CodeNodeType>> = ({
         </Field>
         <Split />
         <CodeEditor
+          nodeId={id}
           isInNode
           readOnly={readOnly}
-          title={
+          title={(
             <TypeSelector
               options={codeLanguages}
               value={inputs.code_language}
               onChange={handleCodeLanguageChange}
             />
-          }
+          )}
           language={inputs.code_language}
           value={inputs.code}
           onChange={handleCodeChange}
@@ -99,9 +110,9 @@ const Panel: FC<NodePanelProps<CodeNodeType>> = ({
         />
       </div>
       <Split />
-      <div className='px-4 pb-2 pt-4'>
+      <div className="px-4 pb-2 pt-4">
         <Field
-          title={t(`${i18nPrefix}.outputVars`)}
+          title={t(`${i18nPrefix}.outputVars`, { ns: 'workflow' })}
           operations={
             <AddButton onClick={handleAddOutputVariable} />
           }
@@ -121,7 +132,7 @@ const Panel: FC<NodePanelProps<CodeNodeType>> = ({
         onCancel={hideRemoveVarConfirm}
         onConfirm={onRemoveVarConfirm}
       />
-    </div >
+    </div>
   )
 }
 
